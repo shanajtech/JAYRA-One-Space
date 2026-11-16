@@ -1,1 +1,18 @@
-{"name":"jayra-one-space","version":"0.1.0","private":true,"description":"Single-page companion frontend; AI backend is not connected.","scripts":{"build":"node scripts/build.mjs","dev":"node scripts/build.mjs && node scripts/serve.mjs","check":"node --check src/app.js && node --check scripts/build.mjs && node --check scripts/serve.mjs"},"engines":{"node":">=18"}}
+{
+  "name": "jayra-one-space",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Single-page bilingual AI voice companion",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/build.mjs && node scripts/serve.mjs",
+    "check": "node --check src/app.js && node --check scripts/build.mjs && node --check scripts/serve.mjs",
+    "test": "node --test server/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "msedge-tts": "2.1.1"
+  }
+}
