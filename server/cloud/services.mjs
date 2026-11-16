@@ -3,7 +3,7 @@ import {HttpError} from '../validation.mjs';
 export const COOKIE='__Host-jayra_one';
 export function cloudConfig(env=process.env){
  const storage=!!(env.UPSTASH_REDIS_REST_URL&&env.UPSTASH_REDIS_REST_TOKEN),session=typeof env.ZYRA_SESSION_SECRET==='string'&&env.ZYRA_SESSION_SECRET.length>=43,ai=!!env.GROQ_API_KEY;
- return {ready:ai&&storage&&session,storage:storage&&session,ai,session,model:'openai/gpt-oss-20b',dailyLimit:Math.floor(Math.min(100,Math.max(1,Number(env.ZYRA_DAILY_LIMIT)||20)))};
+ return {ready:ai&&storage&&session,storage:storage&&session,ai,session,model:'openai/gpt-oss-20b',dailyLimit:Math.floor(Math.min(100,Math.max(1,Number(env.ZYRA_DAILY_LIMIT)||100)))};
 }
 export function send(res,status,value){res.statusCode=status;res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Referrer-Policy','no-referrer');res.end(JSON.stringify(value));}
 export function originCheck(req){if(req.headers.origin!==`https://${req.headers.host}`)throw new HttpError(403,'Open JYRA from its own website to continue.');}
@@ -28,7 +28,7 @@ export function createCloudServices({env=process.env,fetcher=fetch,clock=Date.no
  function ip(req){const value=env.VERCEL==='1'?req.headers['x-forwarded-for']?.split(',')[0]?.trim():req.socket?.remoteAddress;if(!value||value.length>128)throw new HttpError(503,'Could not identify this connection. Please try again.');return hash('network:'+value);}
  async function consume(req,user,kind='chat'){
   if(!config.storage)throw new HttpError(503,'The owner is preparing online service limits.');const now=clock(),day=Math.floor((now+21600000)/86400000),ttlDay=Math.max(1,Math.ceil(((day+1)*86400000-21600000-now)/1000)),minute=Math.floor(now/60000),network=ip(req);
-  const daily=kind==='chat'?config.dailyLimit:kind==='sync'?120:10,global=kind==='chat'?Math.min(10000,Math.max(1,Number(env.ZYRA_GLOBAL_DAILY_LIMIT)||200)):kind==='sync'?10000:1000;
+  const daily=kind==='chat'?config.dailyLimit:kind==='sync'?120:100,global=kind==='chat'?Math.min(10000,Math.max(1,Number(env.ZYRA_GLOBAL_DAILY_LIMIT)||200)):kind==='sync'?10000:1000;
   const keys=[prefix+kind+':minute:'+network+':'+minute,prefix+kind+':user:'+user.id+':'+day,prefix+kind+':network:'+network+':'+day,prefix+kind+':all:'+day];
   const result=await command(['EVAL',QUOTA,keys.length,...keys,kind==='chat'?10:30,120,daily,ttlDay,daily*3,ttlDay,global,ttlDay]);if(!Array.isArray(result)||result.length!==3)throw new HttpError(503,'Online usage limits are unavailable.');if(result[0]!==1){const error=new HttpError(429,result[1]===1?'Please wait a minute before sending more requests.':'Today’s online usage limit has been reached. Please try again after midnight in Bangladesh.');error.retryAfter=Math.max(1,Number(result[2])||60);throw error;}return {remaining:result[1],resetsAt:now+ttlDay*1000};
  }
