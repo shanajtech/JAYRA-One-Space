@@ -16,6 +16,10 @@ Start talking requests browser microphone recognition. Choose English or বা�
 
 Conversation requests go to Groq. Reply text goes to Microsoft for speech. Camera stays a local preview. Chat history stays in page memory until clear/reload and is sent as context for each reply. No persistent AI memory or computer control is connected. Existing browser reminders alert only while the page is open.
 
+## Reminder demo
+
+Open `/jayra-demo/index.html` on the hosted site or in the local preview. The demo supports browser-based Bengali voice controls and reminders. The optional Windows launcher is available in [demo/reminders](demo/reminders/README.md).
+
 ## Checks
 
 `npm test` tests server validation, language forwarding, credential-safe errors and signed session integrity. `npm run check` checks browser JavaScript syntax. Real live AI and microphone tests also require configured production credentials and microphone permission.

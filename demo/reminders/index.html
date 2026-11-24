@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jayra One Space</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1115;--panel:#101a20;--line:#263b40;--green:#8eebc5;--text:#f3f7f5;--muted:#acbebf;font:16px/1.55 system-ui,sans-serif}
+*{box-sizing:border-box}body{margin:0;color:var(--text);background:radial-gradient(ellipse at 13% 18%,#142f2e 0%,transparent 48%),var(--bg);min-height:100vh}
+header,main{width:min(1120px,calc(100% - 40px));margin:auto}header{display:flex;justify-content:space-between;align-items:center;padding:25px 0;border-bottom:1px solid var(--line)}
+.brand{font-size:22px;letter-spacing:.04em;font-weight:700}.brand span{font-size:12px;letter-spacing:.14em;color:var(--muted);margin-left:.6em}
+#status{color:var(--green);font-size:.9rem;text-align:right}main{padding:30px 0;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:25px;min-width:0}
+.hero{display:flex;flex-direction:column;align-items:center;text-align:center;min-height:410px;justify-content:center}
+.orb{width:128px;height:128px;border-radius:50%;border:1px solid #7ee8bf;box-shadow:0 0 36px #65e0af3b,inset 0 0 26px #abffe84d;background:radial-gradient(circle at 43% 33%,#abffe1 0%,#329d85 25%,#16343a 63%,#0b161c 78%);position:relative;margin:8px 0 16px}
+.orb::before{content:"";position:absolute;inset:-10px;border:1px solid #467e73;border-radius:50%;border-right-color:transparent;transform:rotate(-30deg)}
+.orb.active{animation:pulse 1.4s ease-in-out infinite alternate}@keyframes pulse{to{box-shadow:0 0 56px #76f9cd90,inset 0 0 30px #baffe48a}}
+h1,h2,p{margin:0}h1{font-size:clamp(1.65rem,4vw,2.6rem);font-weight:650}h2{font-size:1.13rem}.muted{color:var(--muted);font-size:.88rem}
+.buttons{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:18px}
+button,input{font:inherit}button{background:#1a2b30;color:var(--text);border:1px solid #3d575b;border-radius:10px;padding:8px 13px;cursor:pointer}button:hover{border-color:var(--green)}button:disabled{cursor:default;opacity:.6}button[aria-pressed="true"],.primary{background:var(--green);color:#0b251d;border-color:var(--green)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+.dialog{display:flex;flex-direction:column;min-height:410px}.messages{display:flex;flex-direction:column;align-items:flex-start;gap:10px;height:233px;overflow-y:auto;margin:12px 0;padding:4px}
+.message{padding:10px 13px;max-width:90%;border-radius:12px;background:#1b2b31;overflow-wrap:anywhere}.message.user{align-self:flex-end;background:#214237}.message strong{display:block;font-size:.73rem;color:var(--green)}
+form{display:flex;gap:8px;margin-top:auto}input{width:100%;min-width:0;flex:1;background:#0b151a;color:var(--text);border:1px solid #3d575b;border-radius:10px;padding:8px 11px}input::placeholder{color:var(--muted)}
+.reminders{grid-column:1/-1}.reminders header{width:auto;margin:0;padding:0 0 8px;gap:10px}.reminders ul{padding:0;list-style:none;margin:0}.reminders li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}.reminders li:last-child{border-bottom:0}
+#voice-note{min-height:2.7em;margin-top:10px}.examples{margin-top:10px}
+@media(max-width:740px){main{grid-template-columns:1fr;padding-top:18px}.hero{min-height:370px}.panel{padding:18px}.brand span{display:none}}
+@media(prefers-reduced-motion:reduce){.orb.active{animation:none}}
+</style>
+</head>
+<body>
+<header><div class="brand">Jayra <span>ONE SPACE</span></div><output id="status" role="status">প্রস্তুত</output></header>
+<main>
+<section class="panel hero" aria-labelledby="welcome">
+  <div class="orb" id="orb" aria-hidden="true"></div>
+  <h1 id="welcome">আমি আছি।</h1>
+  <p class="muted">বাংলায় বলো বা লিখো। সময় হলে আমি নিজে থেকে মনে করাব।</p>
+  <div class="buttons">
+    <button type="button" class="primary" id="mic" aria-pressed="false">মাইকে বলো</button>
+    <button type="button" id="always" aria-pressed="false">Always Talk</button>
+    <button type="button" id="sound" aria-pressed="false">ভয়েস চালু করো</button>
+  </div>
+  <p class="muted" id="voice-note">মাইক চালালে ব্রাউজার ভয়েস শনাক্ত করবে।</p>
+</section>
+<section class="panel dialog" aria-labelledby="chat">
+  <h2 id="chat">কথোপকথন</h2>
+  <div class="messages" id="messages" role="log" aria-label="কথোপকথন"></div>
+  <form id="form">
+    <input id="command" aria-label="Jayra-কে বলো" placeholder="যেমন ১০ সেকেন্ড পর মনে করিয়ে দিও" maxlength="280" required>
+    <button type="submit" class="primary">পাঠাও</button>
+  </form>
+  <p class="muted examples">বলতে পারো “আর পাঁচ মিনিট”, “ক্যালকুলেটর খোলো” বা “নোটপ্যাড খোলো”।</p>
+</section>
+<section class="panel reminders" aria-labelledby="timers">
+  <header><h2 id="timers">রিমাইন্ডার</h2><button type="button" id="demo">১০ সেকেন্ডের ডেমো</button></header>
+  <ul id="reminders"></ul>
+  <p id="empty" class="muted">এখন কোনো রিমাইন্ডার নেই। ট্যাবটি খোলা রাখলে সময় হলে Jayra ডাকবে।</p>
+</section>
+</main>
+<script>
+const byId = id => document.getElementById(id);
+const mic = byId('mic');
+const always = byId('always');
+const sound = byId('sound');
+const bnDigits = '০১২৩৪৫৬৭৮৯';
+const banglaNumbers = { এক:1, দুই:2, তিন:3, চার:4, পাঁচ:5, ছয়:6, 'ছয়':6, সাত:7, আট:8, নয়:9, 'নয়':9, দশ:10, পনেরো:15, বিশ:20, ত্রিশ:30 };
+const dateFormat = new Intl.DateTimeFormat('bn-BD', { dateStyle:'medium', timeStyle:'medium' });
+const numberFormat = new Intl.NumberFormat('bn-BD');
+const localLauncher = location.protocol === 'http:' && location.hostname === '127.0.0.1' && location.pathname === '/';
+const storageKey = 'jayra-reminders-v1';
+const Recognizer = window.SpeechRecognition || window.webkitSpeechRecognition;
+const speech = window.speechSynthesis;
+let reminders = [];
+let lastDue = null;
+let voiceEnabled = false;
+let continuous = false;
+let listening = false;
+let speaking = false;
+let recognition;
+let resumeTimer;
+
+try {
+  const saved = JSON.parse(localStorage.getItem(storageKey) || '[]');
+  if (Array.isArray(saved)) reminders = saved.filter(entry => entry && typeof entry.id === 'string' && Number.isFinite(entry.at));
+} catch {}
+
+function addMessage(text, isUser = false) {
+  const card = document.createElement('div');
+  card.className = isUser ? 'message user' : 'message';
+  const author = document.createElement('strong');
+  author.textContent = isUser ? 'তুমি' : 'Jayra';
+  card.append(author, document.createTextNode(text));
+  const log = byId('messages');
+  log.append(card);
+  if (log.children.length > 60) log.firstElementChild.remove();
+  log.scrollTop = log.scrollHeight;
+}
+
+function updateStatus() {
+  byId('status').textContent = speaking ? 'Jayra বলছে' : listening ? 'Jayra শুনছে' : continuous ? 'Always Talk চালু' : 'প্রস্তুত';
+  byId('orb').classList.toggle('active', speaking || listening);
+  mic.setAttribute('aria-pressed', String(listening));
+  mic.textContent = listening ? 'শোনা থামাও' : 'মাইকে বলো';
+  always.setAttribute('aria-pressed', String(continuous));
+}
+
+function banglaVoice() {
+  return speech?.getVoices().find(voice => /^bn(?:[-_]|$)/i.test(voice.lang));
+}
+
+function resumeListening() {
+  clearTimeout(resumeTimer);
+  if (continuous && !speaking && !listening) resumeTimer = setTimeout(startListening, 350);
+}
+
+function say(text) {
+  addMessage(text);
+  const voice = banglaVoice();
+  if (!voiceEnabled || !voice) return;
+  speaking = true;
+  if (listening) recognition.abort();
+  updateStatus();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.voice = voice;
+  utterance.lang = voice.lang;
+  utterance.rate = 0.96;
+  utterance.onend = utterance.onerror = () => {
+    speaking = speech.pending;
+    updateStatus();
+    resumeListening();
+  };
+  speech.speak(utterance);
+}
+
+function renderReminders() {
+  const list = byId('reminders');
+  list.replaceChildren();
+  byId('empty').hidden = reminders.length > 0;
+  for (const reminder of [...reminders].sort((a,b) => a.at - b.at)) {
+    const item = document.createElement('li');
+    const time = document.createElement('span');
+    time.textContent = dateFormat.format(reminder.at);
+    const cancel = document.createElement('button');
+    cancel.type = 'button';
+    cancel.textContent = 'বাতিল করো';
+    cancel.addEventListener('click', () => {
+      save(reminders.filter(entry => entry.id !== reminder.id));
+      say('রিমাইন্ডারটি বাতিল করেছি।');
+    });
+    item.append(time,cancel);
+    list.append(item);
+  }
+}
+
+function save(entries) {
+  reminders = entries;
+  try { localStorage.setItem(storageKey, JSON.stringify(entries)); }
+  catch { byId('voice-note').textContent = 'এই ট্যাব চালু থাকা পর্যন্ত রিমাইন্ডার থাকবে।'; }
+  renderReminders();
+}
+
+function durationFrom(text) {
+  const normalized = text.replace(/[০-৯]/g, digit => bnDigits.indexOf(digit));
+  const match = normalized.match(/([0-9]+|[\p{Script=Bengali}]+)\s*(সেকেন্ড|মিনিট|ঘণ্টা|ঘন্টা)/u);
+  if (!match) return null;
+  const count = banglaNumbers[match[1]] ?? Number(match[1]);
+  if (!Number.isInteger(count) || count < 1 || count > 10080) return null;
+  const unit = match[2] === 'ঘন্টা' ? 'ঘণ্টা' : match[2];
+  const factor = { সেকেন্ড:1000, মিনিট:60000, ঘণ্টা:3600000 }[unit];
+  return { ms: count * factor, label: `${numberFormat.format(count)} ${unit}` };
+}
+
+function schedule(duration, followUp = false) {
+  if (followUp) lastDue = null;
+  save([...reminders, { id: crypto.randomUUID(), at: Date.now() + duration.ms }]);
+  say(followUp ? `ঠিক আছে, আরও ${duration.label} পর ডাকব।` : `ঠিক আছে, ${duration.label} পর তোমাকে ডাকব।`);
+}
+
+function checkReminders() {
+  const now = Date.now();
+  const due = reminders.filter(entry => entry.at <= now);
+  if (!due.length) return;
+  save(reminders.filter(entry => entry.at > now));
+  lastDue = now;
+  if (due.length === 1) {
+    say('তোমার রিমাইন্ডারের সময় হয়েছে। চাইলে বলো, আর পাঁচ মিনিট।');
+  } else {
+    say(`${numberFormat.format(due.length)}টি রিমাইন্ডারের সময় হয়েছে। আবার ডাকতে চাইলে বলো, আর পাঁচ মিনিট।`);
+  }
+}
+
+async function handleCommand(text) {
+  text = text.normalize('NFC').trim();
+  if (!text) return;
+  addMessage(text, true);
+  const words = text.toLowerCase();
+  const duration = durationFrom(words);
+  if (duration && /^(?:jayra[ ,]+|\S+[,।]\s*)?(?:আর\s|আরও\s|আরো\s)/i.test(words)) {
+    if (lastDue !== null) return schedule(duration, true);
+    return say('সময় হলে রিমাইন্ডার পিছিয়ে দিতে “আর পাঁচ মিনিট” বলতে পারো। নতুন রিমাইন্ডারের জন্য বলো, “পাঁচ মিনিট পর মনে করিয়ে দিও।”');
+  }
+  if (duration && /মনে|রিমাইন্ডার|ডাক/.test(words)) return schedule(duration);
+  const app = /calculator|ক্যালকুলেটর|ক্যালকুলেটার/.test(words) ? 'calculator' : /notepad|নোটপ্যাড|নোটপেড/.test(words) ? 'notepad' : '';
+  if (app && /খোল|চালু|open/.test(words)) {
+    if (!localLauncher) return say('অ্যাপ খুলতে Jayra-কে Windows-এ Node.js দিয়ে চালাও।');
+    try {
+      const result = await fetch(`/api/open/${app}`, { method:'POST' });
+      const data = await result.json();
+      return say(data.message);
+    } catch {
+      return say('লোকাল Jayra সার্ভারে পৌঁছাতে পারলাম না।');
+    }
+  }
+  if (/হ্যালো|হাই|সালাম/.test(words)) return say('হ্যালো, কী মনে করিয়ে দেব?');
+  say('একটা সময় বলে দেখো, যেমন “দশ সেকেন্ড পর মনে করিয়ে দিও।”');
+}
+
+function startListening() {
+  if (!Recognizer || listening || speaking) return;
+  recognition = new Recognizer();
+  recognition.lang = 'bn-BD';
+  recognition.interimResults = false;
+  recognition.onresult = event => void handleCommand(event.results[0][0].transcript);
+  recognition.onerror = event => {
+    if (event.error === 'aborted' || event.error === 'no-speech') return;
+    continuous = false;
+    byId('voice-note').textContent = 'মাইক বা ভয়েস শনাক্তকরণ চালু হয়নি। চাইলে নিচে লিখে বলো।';
+    updateStatus();
+  };
+  recognition.onend = () => {
+    listening = false;
+    updateStatus();
+    resumeListening();
+  };
+  try {
+    recognition.start();
+    listening = true;
+    updateStatus();
+  } catch {
+    continuous = false;
+    byId('voice-note').textContent = 'মাইক চালু হয়নি। চাইলে নিচে লিখে বলো।';
+    updateStatus();
+  }
+}
+
+function stopListening() {
+  continuous = false;
+  clearTimeout(resumeTimer);
+  if (listening) recognition.abort();
+  updateStatus();
+}
+
+mic.addEventListener('click', () => {
+  if (listening) stopListening();
+  else startListening();
+});
+always.addEventListener('click', () => {
+  if (continuous) return stopListening();
+  continuous = true;
+  updateStatus();
+  startListening();
+});
+sound.addEventListener('click', () => {
+  if (!voiceEnabled && !banglaVoice()) {
+    byId('voice-note').textContent = 'এই ব্রাউজারে বাংলা ভয়েস পাওয়া যায়নি। Jayra-র উত্তর চ্যাটে দেখা যাবে।';
+    return;
+  }
+  voiceEnabled = !voiceEnabled;
+  sound.setAttribute('aria-pressed', String(voiceEnabled));
+  sound.textContent = voiceEnabled ? 'ভয়েস বন্ধ করো' : 'ভয়েস চালু করো';
+  if (voiceEnabled) say('আমি এখন বাংলায় বলব।');
+  else {
+    speech.cancel();
+    speaking = false;
+    updateStatus();
+    resumeListening();
+  }
+});
+byId('form').addEventListener('submit', event => {
+  event.preventDefault();
+  const input = byId('command');
+  void handleCommand(input.value);
+  input.value = '';
+});
+byId('demo').addEventListener('click', () => schedule({ ms:10000, label:'১০ সেকেন্ড' }));
+if (!Recognizer) {
+  mic.disabled = true;
+  always.disabled = true;
+  byId('voice-note').textContent = 'এই ব্রাউজারে ভয়েস ইনপুট পাওয়া যায়নি। লিখেও Jayra ব্যবহার করা যাবে।';
+}
+if (!speech) sound.disabled = true;
+addMessage('আজ কী মনে করিয়ে দেব?');
+renderReminders();
+checkReminders();
+setInterval(checkReminders, 300);
+document.addEventListener('visibilitychange', checkReminders);
+</script>
+</body>
+</html>
