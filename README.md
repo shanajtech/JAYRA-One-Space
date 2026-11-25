@@ -19,7 +19,7 @@ Developed by **Shanaj Akter**.
 | Short conversation context | Uses recent messages from the current page to follow the conversation. |
 | Browser reminders | You can add a reminder with the **+** button, mark it done, or delete it. Reminders are saved in the same browser. Alerts work only while the page is open. |
 | Camera preview | Shows your camera view when you turn it on. JAYRA does not understand or analyze the video. |
-| Avatar choices | You can choose Core, Female, or Male visuals. This does not change the online female reply voice. |
+| Avatar choices | You can choose Core or Female visuals. This does not change the online female reply voice. |
 
 **Messages here mean website chat messages. JAYRA does not send SMS messages to phone numbers.**
 
