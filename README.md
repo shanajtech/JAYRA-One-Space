@@ -1,10 +1,10 @@
 # JAYRA One Space
 
-JAYRA is a simple AI companion. You can type or speak with JAYRA in Bengali and English.
+A browser-based AI companion for Bengali and English. Chat by typing or speaking, listen to replies, and manage reminders in the browser.
 
-**Live website:** https://jayra-one-space.vercel.app/
+[Open the live app](https://jayra-one-space.vercel.app/)
 
-Developed by **Shanaj Akter**.
+Built by **Shanaj Akter**. For voice input, open the app in Chrome, choose your language in Settings, and allow microphone access.
 
 ## What can JAYRA do now?
 
